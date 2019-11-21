@@ -32,6 +32,7 @@ static ViUInt32 retCount;
 static ViUInt32 writeCount;
 static unsigned char buffer[100];
 static char stringinput[512];
+static char retString[100];
 
 /*
 * In every source code or header file that you use it is necessary to prototype
@@ -45,8 +46,26 @@ static char stringinput[512];
 * help is located in your NI-VISA directory or folder.
 */
 
+
+char* getReadValue(const char *str)
+{
+   const char separator = ' ';
+   char* sep = strchr(str, separator);
+
+   if (sep != NULL) 
+   {
+      *sep = '\0';
+      return (sep+1);
+   }
+   return '\0';
+
+}
+
+
 int main(void)
 {
+   memset(buffer, 0, sizeof(buffer));
+   memset(retString, 0, sizeof(retString));
     /*
      * First we must call viOpenDefaultRM to get the resource manager
      * handle.  We will store this handle in defaultRM.
@@ -78,11 +97,14 @@ int main(void)
      * VXI0::2::INSTR depending on the necessary descriptor for your 
      * instrument.
      */
-   status = viOpen (defaultRM,  "GPIB0::2::INSTR", VI_NULL, VI_NULL, &instr);
+   status = viOpen (defaultRM,  "GPIB0::11::INSTR", VI_NULL, VI_NULL, &instr);
    if (status < VI_SUCCESS)  
    {
         printf ("Cannot open a session to the device.\n");
-        goto Close;
+         status = viClose(instr);
+         status = viClose(defaultRM);
+
+         return 0;
    }
   
     /*
@@ -101,7 +123,10 @@ int main(void)
    if (status < VI_SUCCESS)  
    {
       printf("Error writing to the device\n");
-      goto Close;
+         status = viClose(instr);
+         status = viClose(defaultRM);
+
+         return 0;
    }
      
     /*
@@ -120,11 +145,127 @@ int main(void)
       printf("Data read: %*s\n",retCount,buffer);
    }
 
+   // strcpy(stringinput, "MEASUrement:IMMed:TYPe FREQuency");
+   // status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
 
+   // strcpy(stringinput, "MEASUrement:IMMed:SOURCE[1] CH1");
+   // status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+
+   // strcpy(stringinput, "MEASUrement:IMMed?");
+   // status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+
+   // status = viRead(instr, buffer, 100, &retCount);
+   // memset(buffer, 0, sizeof(buffer));
+   // printf("Data read: %*s\n", retCount, buffer);
+   // memset(buffer, 0, sizeof(buffer));
+
+   // strcpy(stringinput, "AUTOset EXECUTE");
+   // status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+
+   strcpy(stringinput, "CH1:SCALE 500e-3");
+   status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+
+   strcpy(stringinput, "DATA:SOU CH1");
+   status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+
+   strcpy(stringinput, "DATA:WIDTH 1");
+   status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+
+   strcpy(stringinput, "DATA:ENC RPB");
+   status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+
+   strcpy(stringinput, "WFMPRE:YMULT?");
+   status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+   memset(buffer, 0, sizeof(buffer));
+   status = viRead(instr, buffer, 100, &retCount);
+   printf("Data read: %*s\n", retCount, buffer);
+   // strncpy(getReadValue(buffer), retString, sizeof(retString));
+   // // retString = getReadValue(buffer);
+   // printf("Ret string read: %s", retString);
+
+
+
+   strcpy(stringinput, "WFMPRE:YZERO?");
+   status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+   memset(buffer, 0, sizeof(buffer));
+   status = viRead(instr, buffer, 100, &retCount);
+   printf("Data read: %*s\n", retCount, buffer);
+
+
+   strcpy(stringinput, "WFMPRE:YOFF?");
+   status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+   memset(buffer, 0, sizeof(buffer));
+   status = viRead(instr, buffer, 100, &retCount);
+   printf("Data read: %*s\n", retCount, buffer);
+
+   strcpy(stringinput, "WFMPRE:XINCR?");
+   status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+   memset(buffer, 0, sizeof(buffer));
+   status = viRead(instr, buffer, 100, &retCount);
+   printf("Data read: %*s\n", retCount, buffer);
+
+   strcpy(stringinput, "CURVE?");
+   status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+
+   unsigned char ret[20*1024];
+   
+   
+   int ret_size = (int)(sizeof(ret)/sizeof(ret[0]));
+
+   status = viRead(instr, ret, ret_size, &retCount);
+
+   unsigned char* p = ret + 13;
+
+   int new_ret_size = retCount - 13;
+   int k;
+   printf("Data is: \n");
+   float data[retCount];
+   int offset = 128;
+   float mult = 20.0000E-3f;
+   float xincr = 80e-9f;
+   float yzero = 0.0f;
+   float time[retCount];
+
+   int val;
+   for (k = 0; k < retCount; k++)
+   {
+      /** data[k] = *p; **/
+
+      // float val;
+      
+      // memcpy(&val, p, sizeof(float));
+      // int byte_val = ((int) *p) - offset;
+      // memcpy(&val, p, 2*sizeof(unsigned char));
+      // printf("%d, ", val);
+      data[k] = (((int)*p - offset) * mult) + yzero;
+      time[k] = (float)(k * xincr);
+      // float val;
+      // val = *(float*)p;
+      // float val = mult * (float)((byte_int_val - offset));
+      // float 
+      // float val = atof(byte_val);
+      // printf("%2.0f,", atof(byte_val));
+      p++;
+   }
+   printf("\n\nTime (s) | Voltage (V)\n\n");
+   for (k = 0; k < retCount; k++)
+   {
+      printf("%0.10f  s | %0.3f V\n", time[k], data[k]);
+      // /** printf("%d,", data[k]); **/
+   }
+   printf("\n");
+
+
+    
+         status = viClose(instr);
+         status = viClose(defaultRM);
+
+         return 0;
    /*
     * Now we will close the session to the instrument using
     * viClose. This operation frees all system resources.                     
     */
+    /**
 Close:
    printf("Closing Sessions\nHit enter to continue.");
    fflush(stdin);
@@ -133,4 +274,5 @@ Close:
    status = viClose(defaultRM);
 
    return 0;
+**/
 }

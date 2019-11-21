@@ -16,7 +16,7 @@ LIB_DIR  =
 
 # Compiler Information
 CC       = gcc
-CC_FLAGS = -ansi -O1 -D_REENTRANT $(INC_DIR)
+CC_FLAGS = -std=c99 -O1 -D_REENTRANT $(INC_DIR)
 
 # Linker Information
 LD       = gcc
@@ -36,8 +36,6 @@ TARGETS=     \
    RdWrt     \
    RdWrtSrl  \
    ReserveTrig \
-   RouteTrig \
-   ShareSys  \
    TCPIP     \
    WaitIntr  \
    WaitSRQ   \
@@ -66,10 +64,6 @@ LowReg: VXI-VME/LowReg
 RdWrt: General/RdWrt
 
 RdWrtSrl: Serial/RdWrtSrl
-
-ReserveTrig: PXI/ReserveTrig
-
-RouteTrig: PXI/RouteTrig
 
 ShareSys: VXI-VME/ShareSys
 
@@ -113,14 +107,6 @@ GPIB/AsyncSRQ: GPIB/AsyncSRQ.c
 	$(LD) $(LD_FLAGS) $@.o $(LD_LIBS) -o $@
 
 GPIB/WaitSRQ: GPIB/WaitSRQ.c
-	$(CC) $(CC_FLAGS) -c $< -o $@.o
-	$(LD) $(LD_FLAGS) $@.o $(LD_LIBS) -o $@
-
-PXI/ReserveTrig: PXI/ReserveTrig.c
-	$(CC) $(CC_FLAGS) -c $< -o $@.o
-	$(LD) $(LD_FLAGS) $@.o $(LD_LIBS) -o $@
-
-PXI/RouteTrig: PXI/RouteTrig.c
 	$(CC) $(CC_FLAGS) -c $< -o $@.o
 	$(LD) $(LD_FLAGS) $@.o $(LD_LIBS) -o $@
 
