@@ -53,7 +53,7 @@ int SCPI::writeString(char* strInput, int len)
     int ret = 1;
     ViUInt32 retCount;
     ret = (viWrite(this->instr, (ViBuf) strInput, (ViUInt32) len, &retCount) < VI_SUCCESS) ? 0 : 1;
-    
+    return ret;
 }
 
 
