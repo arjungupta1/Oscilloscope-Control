@@ -35,7 +35,7 @@ private:
     char stringInput[512];
 
     int handleFailures(std::string errorMessage);
-    int writeSCPI(char* strInput, int len);
+    int writeString(char* strInput, int len);
 
 
 
