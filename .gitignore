@@ -1,6 +1,7 @@
 #Ignore all binaries in the bin directory
 bin/
-
+build/
+obj/
 
 # Prerequisites
 *.d

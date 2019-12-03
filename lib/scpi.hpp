@@ -17,7 +17,7 @@ extern "C" {
 class SCPI {
 
 public:
-    SCPI(const char *instrAddrs);
+    SCPI(const char *instrAddr);
     ~SCPI();
     std::string createSCPIString(std::vector<std::string> args);
 
@@ -32,13 +32,15 @@ private:
     ViSession defaultRM;
     ViSession instr;
     ViStatus status;
+
+    void* returnBuff; 
+    uint32_t returnSz;
+
     char stringInput[512];
+    unsigned char returnString[100];
 
     int handleFailures(std::string errorMessage);
-    int writeString(char* strInput, int len);
-
-
-
+    int writeString(const char* strInput, int len);
 };
 
 

@@ -2,6 +2,7 @@
 
 int main()
 {
-    SCPI scpiObj("");
+    SCPI scpiObj("GPIB0::11::INSTR");
+    scpiObj.identifyObject();
     return 0;
 }
