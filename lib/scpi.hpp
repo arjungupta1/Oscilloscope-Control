@@ -17,13 +17,19 @@ extern "C" {
 class SCPI {
 
 public:
+    //SCPI reader constructor 
     SCPI(const char *instrAddr);
-    ~SCPI();
-    std::string createSCPIString(std::vector<std::string> args);
 
+    //SCPI destructor 
+    ~SCPI();
+    
+    //gets Default Resource Manager Session, handles opening and closing of instrument resources
     const ViSession getDefaultRMSession();
+    
+    //gets Instrument session, handles writing functions to instrument
     const ViSession getInstrSession();
 
+    //handles *IDN? queries.
     int identifyObject();
 
 
@@ -40,7 +46,11 @@ private:
     unsigned char returnString[100];
 
     int handleFailures(std::string errorMessage);
-    int writeString(const char* strInput, int len);
+    int writeString(const char* strInput);
+    
+    std::string queryString(const char* strInput, uint32_t &retCount);
+
+    int readString(uint32_t &retCount);
 };
 
 
