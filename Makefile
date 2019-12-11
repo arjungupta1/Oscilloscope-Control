@@ -63,11 +63,6 @@ $(TESTPROGS): $(BUILDDIR)/%: $(OBJS)
 	$(CXX) $(CFLAGS) $(TESTDIR)/$*.cpp $^ $(PROTOOBJ)  -o $@ $(LDLIBS) 
 
 
-ip-pipeline: dir test/ip-pipeline.cpp
-	$(CXX) -g test/ip-pipeline.cpp -o $(BUILDDIR)/$@
-	./$(BUILDDIR)/$@ 2>&1 | tee test-data/debuglog.txt
-
-
 clean:
 	$(RM) $(BUILDDIR) $(OBJDIR)
 

@@ -53,6 +53,12 @@ SCPI::~SCPI()
     this->status = viClose(this->defaultRM);
 }
 
+void SCPI::cleanup()
+{
+    memset(this->returnString, 0, sizeof(this->returnString));
+    memset(this->stringInput, 0, sizeof(this->stringInput));
+}
+
 /**
  * Queries the instrument using the *IDN? query. 
  **/
@@ -62,7 +68,309 @@ int SCPI::identifyObject()
     strcpy(this->stringInput, "*IDN?");
     ViUInt32 retCount;
     std::string query_return = this->queryString(this->stringInput, retCount);    
+    this->cleanup();
     return ret;
+}
+
+DataEncoding SCPI::queryDataEncodingType()
+{
+    strcpy(this->stringInput, "DATA:ENCDG?");
+    ViUInt32 retCount;
+    std::string query_return = this->queryString(this->stringInput, retCount);
+    if (retCount == 0)
+    {
+        std::cout << "Unable to query encoding type?" << std::endl;
+        //larger error handling? 
+    }
+
+    std::string queryVal = this->getQueryVal(query_return);
+
+    DataEncoding ret;
+
+    auto itr = EnumMap::EncodingMap.find(queryVal);
+
+    if (itr == EnumMap::EncodingMap.end()) {
+        return DATA_ENCODING_INVALID;
+    }
+
+    std::cout << "Iterator Value is: " << itr->first << "\tMap value is " << itr->second <<  std::endl;
+    
+    ret = itr->second;
+
+    this->cleanup();
+
+    return ret;
+}
+
+
+int SCPI::setDataEncodingType(DataEncoding enc)
+{
+    int ret = 1;
+    auto itr = std::find_if(EnumMap::EncodingMap.begin(), EnumMap::EncodingMap.end(), 
+                            [&enc](const std::pair<std::string, DataEncoding> &p)
+                            {
+                                return (enc == p.second);
+                            });
+
+    if (itr == EnumMap::EncodingMap.end()) 
+    {
+        std::cout << "Unable to set encoding type to an invalid value." << std::endl;
+        return 0;
+    }
+
+    //val falls out of scope once dataStr falls out of scope
+    std::string dataStr = itr->first;
+
+    strcpy(this->stringInput, "DATA:ENCDG ");
+    strcat(this->stringInput, dataStr.c_str());
+
+    std::cout << "writing the string: " << this->stringInput << std::endl;
+
+    ret = this->writeString(this->stringInput);
+    this->cleanup();
+
+    return ret;
+
+}
+
+ChannelSource SCPI::queryChannelSource()
+{
+    strcpy(this->stringInput, "DATA:SOURCE?");
+    ViUInt32 retCount;
+    std::string query_return = this->queryString(this->stringInput, retCount);
+    if (retCount == 0)
+    {
+        std::cout << "Unable to query channel source?" << std::endl;
+        //larger error handling? 
+    }
+
+    std::string queryVal = this->getQueryVal(query_return);
+
+    ChannelSource ret;
+
+    auto itr = EnumMap::ChannelSrcMap.find(queryVal);
+
+    if (itr == EnumMap::ChannelSrcMap.end()) {
+        return CHANNEL_SRC_INVALID;
+    }
+
+    std::cout << "Iterator Value is: " << itr->first << "\tMap value is " << itr->second <<  std::endl;
+    
+    ret = itr->second;
+
+    this->cleanup();
+
+    return ret;
+}
+
+
+int SCPI::setChannelSource(ChannelSource src)
+{
+    int ret = 1;
+    //since we are using C++11, can't use generic templates :( 
+    auto itr = std::find_if(EnumMap::ChannelSrcMap.begin(), EnumMap::ChannelSrcMap.end(), 
+                            [&src](const std::pair<std::string, ChannelSource> &p)
+                            {
+                                return (src == p.second);
+                            });
+
+    if (itr == EnumMap::ChannelSrcMap.end()) 
+    {
+        std::cout << "Unable to set encoding type to an invalid value." << std::endl;
+        return 0;
+    }
+
+    //val falls out of scope once dataStr falls out of scope
+    std::string dataStr = itr->first;
+
+    strcpy(this->stringInput, "DATA:SOURCE ");
+    strcat(this->stringInput, dataStr.c_str());
+    
+    std::cout << "writing the string: " << this->stringInput << std::endl;
+
+    ret = this->writeString(this->stringInput);
+    this->cleanup();
+
+    return ret;
+
+}
+
+DataWidth SCPI::queryDataWidth()
+{
+    strcpy(this->stringInput, "DATA:WIDTH?");
+    ViUInt32 retCount;
+    std::string query_return = this->queryString(this->stringInput, retCount);
+    if (retCount == 0)
+    {
+        std::cout << "Unable to query data width?" << std::endl;
+        //larger error handling? 
+    }
+
+    std::string queryVal = this->getQueryVal(query_return);
+
+    DataWidth ret;
+
+    auto itr = EnumMap::DataWidthMap.find(queryVal);
+
+    if (itr == EnumMap::DataWidthMap.end()) {
+        return DATA_WIDTH_INVALID;
+    }
+
+    std::cout << "Iterator Value is: " << itr->first << "\tMap value is " << itr->second <<  std::endl;
+    
+    ret = itr->second;
+
+    this->cleanup();
+
+    return ret;
+
+}
+
+int SCPI::setDataWidth(DataWidth width)
+{
+    int ret = 1;
+    //since we are using C++11, can't use generic templates :( 
+    auto itr = std::find_if(EnumMap::DataWidthMap.begin(), EnumMap::DataWidthMap.end(), 
+                            [&width](const std::pair<std::string, DataWidth> &p)
+                            {
+                                return (width == p.second);
+                            });
+
+    if (itr == EnumMap::DataWidthMap.end()) 
+    {
+        std::cout << "Unable to set encoding type to an invalid value." << std::endl;
+        return 0;
+    }
+
+    //val falls out of scope once dataStr falls out of scope
+    std::string dataStr = itr->first;
+
+    strcpy(this->stringInput, "DATA:WIDTH ");
+    strcat(this->stringInput, dataStr.c_str());
+    
+    std::cout << "writing the string: " << this->stringInput << std::endl;
+
+    ret = this->writeString(this->stringInput);
+    this->cleanup();
+
+    return ret;
+
+}
+
+float SCPI::queryYMult()
+{
+    strcpy(this->stringInput, "WFMOUTPRE:YMULT?");
+    ViUInt32 retCount;
+    std::string query_return = this->queryString(this->stringInput, retCount);
+    if (retCount == 0)
+    {
+        std::cout << "Unable to query y mult?" << std::endl;
+        //larger error handling? 
+    }
+
+    std::string queryStrVal = this->getQueryVal(query_return);
+    float ret = this->strToFloat(queryStrVal);
+    printf("The queried ymult value is %0.5f\n", ret);
+
+    this->yMult = ret;
+
+    return ret;
+
+}
+
+float SCPI::queryYZero()
+{
+    strcpy(this->stringInput, "WFMOUTPRE:YZERO?");
+    ViUInt32 retCount;
+    std::string query_return = this->queryString(this->stringInput, retCount);
+    if (retCount == 0)
+    {
+        std::cout << "Unable to query y zero?" << std::endl;
+        //larger error handling? 
+    }
+
+    std::string queryStrVal = this->getQueryVal(query_return);
+    float ret = this->strToFloat(queryStrVal);
+    printf("The queried yzero value is %0.5f\n", ret);
+    
+    this->yZero = ret;
+
+    return ret;
+
+}
+
+float SCPI::queryYOff()
+{
+    strcpy(this->stringInput, "WFMOUTPRE:YOFF?");
+    ViUInt32 retCount;
+    std::string query_return = this->queryString(this->stringInput, retCount);
+    if (retCount == 0)
+    {
+        std::cout << "Unable to query y off?" << std::endl;
+        //larger error handling? 
+    }
+
+    std::string queryStrVal = this->getQueryVal(query_return);
+    float ret = this->strToFloat(queryStrVal);
+    printf("The queried off value is %0.5f\n", ret);
+    
+    this->yOff = ret;
+
+    return ret;
+
+}
+
+float SCPI::queryXIncr()
+{
+    strcpy(this->stringInput, "WFMOUTPRE:XINCR?");
+    ViUInt32 retCount;
+    std::string query_return = this->queryString(this->stringInput, retCount);
+    if (retCount == 0)
+    {
+        std::cout << "Unable to query x Incr?" << std::endl;
+        //larger error handling? 
+    }
+
+    std::string queryStrVal = this->getQueryVal(query_return);
+    float ret = this->strToFloat(queryStrVal);
+    printf("The queried xIncr value is %0.12f\n", ret);
+    
+    this->xIncr = ret;
+
+    return ret;
+}
+
+
+float SCPI::strToFloat(std::string query)
+{
+    std::cout << "QueryStrVal is: " << query << std::endl;\
+    std::stringstream ss;
+    float f;
+    ss << query;
+    ss >> f;
+
+    if (ss.fail())
+    {
+        printf("String stream failed\n");
+    }
+    return f;
+
+}
+
+double SCPI::strToDouble(std::string query)
+{
+    std::cout << "QueryStrVal is: " << query << std::endl;\
+    std::stringstream ss;
+    double d;
+    ss << query;
+    ss >> d;
+
+    if (ss.fail())
+    {
+        printf("String stream failed\n");
+    }
+    return d;
+
 }
 
 int SCPI::writeString(const char* strInput)
