@@ -52,6 +52,17 @@ public:
     float queryYOff();
     float queryXIncr();
 
+    float queryChannelScale(ChannelSource ch);
+    int setChannelScale(ChannelSource ch, float val);
+
+    float queryChannelPosition(ChannelSource ch);
+    int setChannelPosition(ChannelSource ch, float val);
+
+    ChannelSource queryControlledChannel();
+    int setControlledChannel(ChannelSource ch);
+
+
+    double* getWaveformCurveData(ChannelSource ch, float &channelScale);
 
 private:
 

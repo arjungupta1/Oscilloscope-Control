@@ -21,8 +21,8 @@ int main()
         printf("encoding is not RPB\n");
     }
 
-    success = scpiObj.setChannelSource(CHANNEL_SRC_CH1);
-    if (scpiObj.queryChannelSource() == CHANNEL_SRC_CH1)
+    success = scpiObj.setChannelSource(CHANNEL_SRC_CH3);
+    if (scpiObj.queryChannelSource() == CHANNEL_SRC_CH3)
     {
         printf("Channel source is CH1\n");
     }
@@ -44,7 +44,12 @@ int main()
     float ymult = scpiObj.queryYMult();
     float yzero = scpiObj.queryYZero();
     float yoff = scpiObj.queryYOff();
-    double xIncr = scpiObj.queryXIncr();
-    
+    float xIncr = scpiObj.queryXIncr();
+
+    double* data = scpiObj.getWaveformCurveData(CHANNEL_SRC_CH2, xIncr);
+
+    // // scpiObj.setChannelScale(CHANNEL_SRC_CH4, 2.0);
+    // float ch1_scale = scpiObj.queryChannelScale(CHANNEL_SRC_CH4);
+
     return 0;
 }

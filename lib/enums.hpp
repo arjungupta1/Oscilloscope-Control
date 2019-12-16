@@ -24,6 +24,8 @@ enum DataWidth {
     DATA_WIDTH_INVALID
 };
 
+
+
 namespace EnumMap {
 
     static const std::map<std::string, DataEncoding> EncodingMap = 

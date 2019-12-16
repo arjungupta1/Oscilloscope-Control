@@ -162,8 +162,8 @@ int main(void)
    // strcpy(stringinput, "AUTOset EXECUTE");
    // status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
 
-   strcpy(stringinput, "CH1:SCALE 500e-3");
-   status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
+   // strcpy(stringinput, "CH1:SCALE 500e-3");
+   // status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
 
    strcpy(stringinput, "DATA:SOU CH1");
    status = viWrite(instr, (ViBuf)stringinput, (ViUInt32)strlen(stringinput), &writeCount);
